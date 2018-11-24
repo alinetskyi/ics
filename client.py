@@ -1,15 +1,15 @@
 import socket
 import argparse
 
-parser = argparse.ArgumentParser(description="Client to retrieve information from server")
+parser = argparse.ArgumentParser(description="FTP client to retrieve files from server")
 parser.add_argument('--host', dest="host", required=True)
 parser.add_argument('--port', dest="port", type=int, required=True)
-parser.add_argument('--file', dest="file", required=False)
+parser.add_argument('--command', dest="command", required=False)
 
 called_args = parser.parse_args()
 host = called_args.host or 'localhost'
 port = called_args.port or '8080'
-file = called_args.file
+command = called_args.command
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,13 +19,13 @@ except socket.error as err:
 s.connect((host,port))
 
 while True:
-    if file is None:
-        file = input("Type in the filename (in quotes):")
+    if command is None:
+        command = input("Type in the command (in quotes):")
     else:
-        file = 'index.html'
+        command = 'pwd'
 
     try:
-        s.sendall("GET /" + file + " HTTP/1.1\r\n\r\n")
+        s.sendall(command)
     except socket.error:
         print("Something went wrong")
     reply = s.recv(16384)

